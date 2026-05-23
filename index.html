@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portail BVS Deal, BVS Go & MRET</title>
+    <style>
+        /* Importation d'une police moderne */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(-45deg, #1e3c72, #2a5298, #ff6a00, #ee0979);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Conteneur principal */
+        .portal-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 3rem 4rem;
+            text-align: center;
+            max-width: 1000px; /* Élargi pour accueillir 3 blocs proprement */
+            width: 90%;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2);
+            animation: slideUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(50px);
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes slideUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        p.subtitle {
+            font-size: 1.1rem;
+            margin-bottom: 3rem;
+            font-weight: 300;
+            opacity: 0.9;
+        }
+
+        .links-grid {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 3rem;
+        }
+
+        /* Cartes cliquables */
+        .portal-card {
+            cursor: pointer;
+            color: white;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 2rem;
+            border-radius: 15px;
+            width: 260px; /* Ajusté légèrement pour le format 3 colonnes */
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .portal-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .portal-card:hover::before { left: 100%; }
+
+        .portal-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Style spécial pour MRET si vous voulez le faire ressortir un peu */
+        .portal-card.mret-card {
+            border-color: rgba(255, 218, 121, 0.4);
+        }
+        .portal-card.mret-card:hover {
+            border-color: rgba(255, 218, 121, 0.8);
+        }
+
+        .portal-card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .portal-card p {
+            font-size: 0.9rem;
+            font-weight: 300;
+            opacity: 0.8;
+            line-height: 1.4;
+        }
+
+        /* Section contact */
+        .contact-info {
+            background: rgba(0, 0, 0, 0.25);
+            padding: 1.5rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            animation: fadeIn 2s ease forwards;
+            opacity: 0;
+            animation-delay: 0.5s;
+        }
+
+        @keyframes fadeIn { to { opacity: 1; } }
+
+        .contact-info p { margin-bottom: 0.5rem; }
+        
+        .contact-info a {
+            color: #ffda79;
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+            transition: color 0.3s;
+        }
+
+        .contact-info a:hover {
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+
+        /* --- FENÊTRE MODALE --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+            z-index: 1000;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 20px;
+            padding: 2.5rem;
+            max-width: 550px;
+            width: 90%;
+            text-align: left;
+            position: relative;
+            transform: translateY(30px) scale(0.95);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+            color: white;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0) scale(1);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px; right: 20px;
+            font-size: 2rem;
+            line-height: 1;
+            cursor: pointer;
+            transition: color 0.3s, transform 0.3s;
+        }
+
+        .close-btn:hover {
+            color: #ffda79;
+            transform: scale(1.1);
+        }
+
+        .modal-content h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #ffda79;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+        }
+
+        .modal-content p {
+            font-size: 1rem;
+            line-height: 1.6;
+            font-weight: 300;
+            margin-bottom: 1rem;
+        }
+
+        .btn-visit {
+            display: inline-block;
+            margin-top: 1.5rem;
+            padding: 12px 25px;
+            background: linear-gradient(45deg, #ff6a00, #ee0979);
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-align: center;
+            width: 100%;
+        }
+
+        .btn-visit:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(238, 9, 121, 0.4);
+        }
+
+        /* Responsif mobile */
+        @media (max-width: 768px) {
+            .portal-container { padding: 2rem 1.5rem; }
+            h1 { font-size: 2.2rem; }
+            .links-grid { flex-direction: column; align-items: center; }
+            .portal-card { width: 100%; }
+            .modal-content { padding: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="portal-container">
+        <h1>Nos Solutions</h1>
+        <p class="subtitle">Sélectionnez un projet pour en savoir plus</p>
+
+        <div class="links-grid">
+            <div class="portal-card" onclick="openModal('bvsdeal')">
+                <h2>BVS Deal</h2>
+                <p>La solution locale pour booster vos offres et fidéliser vos clients.</p>
+            </div>
+            
+            <div class="portal-card" onclick="openModal('bvsgo')">
+                <h2>BVS Go App</h2>
+                <p>L'application de livraison et click & collect clé en main.</p>
+            </div>
+
+            <div class="portal-card mret-card" onclick="openModal('mret')">
+                <h2>MRET</h2>
+                <p>Mouvement Riche en Tabarnak. Le groupe communautaire crypto incontournable.</p>
+            </div>
+        </div>
+
+        <div class="contact-info">
+            <p>Pour toute question ou achat, contactez-nous :</p>
+            <a href="mailto:beauvaisdeal@gmail.com">beauvaisdeal@gmail.com</a>
+        </div>
+    </div>
+
+    <div id="modalOverlay" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-btn" id="closeModal">&times;</span>
+            <h2 id="modalTitle">Titre</h2>
+            <div id="modalDesc">Description...</div>
+            <a id="modalLink" href="#" class="btn-visit" target="_blank">Accéder au site</a>
+        </div>
+    </div>
+
+    <script>
+        // Données des sites
+        const sitesData = {
+            bvsdeal: {
+                title: "BVS Deal",
+                desc: "<p>Une application permettant aux commerces de poster des offres, de mettre en avant des produits, et d'être affichés au cœur de l'application, avec un programme de fidélité personnalisé !</p><p>✅ Affichage constant et visibilité accrue<br>✅ Horaires en temps réel<br>✅ Itinéraire intégré pour vos clients<br>✅ Prise de contact facilitée</p>",
+                url: "https://bvsdeal.fr"
+            },
+            bvsgo: {
+                title: "BVS Go App",
+                desc: "<p>Une application de livraison, modulable pour s'adapter à la livraison classique ou au click and collect !</p><p><strong>Deux formules s'offrent à vous :</strong><br>🚀 <strong>En vente directe</strong> : Devenez propriétaire à 100% de votre application.<br>🛠️ <strong>Service complet</strong> : Hébergement et maintenance serveur inclus. Vous payez un abonnement et on s'occupe du reste. Vous gérez simplement vos commandes et vos produits !</p>",
+                url: "https://bvsgo-app.web.app/"
+            },
+            // DONNÉES DU PROJET MRET
+            mret: {
+                title: "MRET : Mouvement Riche en Tabarnak",
+                desc: "<p>Un groupe communautaire soudé et survolté construit autour de l'univers de la crypto-monnaie !</p><p>Que vous soyez débutant ou trader chevronné, rejoignez la meute pour profiter de tout l'écosystème :</p><p>📈 <strong>Outils de trading papier</strong> pour s'entraîner sans risques.<br>🔍 <strong>Analyseurs de marché</strong> pour capter les meilleures opportunités.<br>🤖 <strong>Agents IA personnalisés</strong> pour vous guider au quotidien.<br>💬 <strong>Espaces de discussions et d'entraide</strong> pour ne plus jamais trade seul.</p>",
+                url: "https://mret.fr"
+            }
+        };
+
+        const modalOverlay = document.getElementById('modalOverlay');
+        const closeModalBtn = document.getElementById('closeModal');
+        const modalLink = document.getElementById('modalLink');
+
+        // Initialisation de l'audio du hurlement de loup
+        // Source audio libre de droits (sound effect de loup qui hurle)
+        const wolfHowl = new Audio("https://actions.google.com/sounds/v1/animals/wolf_howl.ogg");
+        
+        // Variable pour suivre si c'est le projet MRET actuel
+        let currentSiteId = "";
+
+        // Fonction pour ouvrir la modale
+        function openModal(siteId) {
+            currentSiteId = siteId;
+            document.getElementById('modalTitle').innerHTML = sitesData[siteId].title;
+            document.getElementById('modalDesc').innerHTML = sitesData[siteId].desc;
+            modalLink.href = sitesData[siteId].url;
+            modalOverlay.classList.add('active');
+        }
+
+        // Événement au clic sur le bouton de la modale
+        modalLink.addEventListener('click', (e) => {
+            // Si on clique sur le bouton MRET, on joue le hurlement du loup !
+            if (currentSiteId === 'mret') {
+                wolfHowl.currentTime = 0; // Remet le son à zéro s'il est déjà en train de jouer
+                wolfHowl.play().catch(error => {
+                    console.log("Lecture audio bloquée par le navigateur, nécessite une action utilisateur préalable.");
+                });
+            }
+        });
+
+        // Fermer la modale au clic sur la croix
+        closeModalBtn.addEventListener('click', () => {
+            modalOverlay.classList.remove('active');
+        });
+
+        // Fermer la modale au clic en dehors de la boîte
+        window.addEventListener('click', (event) => {
+            if (event.target === modalOverlay) {
+                modalOverlay.classList.remove('active');
+            }
+        });
+    </script>
+
+</body>
+</html>
